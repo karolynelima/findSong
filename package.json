@@ -1,7 +1,7 @@
 {
   "name": "findsong",
   "version": "0.1.0",
-  "homepage": "https://karolynelima.github.io/public/",
+  "homepage": "https://karolynelima.github.io/findSong/",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",

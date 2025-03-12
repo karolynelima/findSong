@@ -4,13 +4,14 @@ import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from requests.exceptions import Timeout
+from waitress import serve
 
 app = Flask(__name__)
 CORS(app)  # Permite requisições do frontend
 
 genius = lyricsgenius.Genius("ZU-1J5vzPA1kzDOXWTMWMohIloyRiUafyhnSwXfGeMptN5JwMj1xpjQ4iC0Q3IMW", timeout=30)
 
-@app.route('/buscar', methods=['POST'])
+@app.route('/', methods=['POST'])
 def buscar_musicas_por_frase():
     data = request.json
     cantor = data.get('cantor')
@@ -50,9 +51,9 @@ def buscar_musicas_por_frase():
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
+if __name__ == "__main__":
+    print("Servidor rodando com Waitress...")
+    serve(app, host="0.0.0.0", port=8000)
 
 # def salvar_resultados_txt(resultados, arquivo):
 #     """Salva os resultados em um arquivo .txt."""
