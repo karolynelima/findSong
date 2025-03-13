@@ -62,3 +62,12 @@ body {
     margin: 0;
     color: #555;
   }
+
+  .destaque {
+    background-color: yellow;
+    font-weight: bold;
+    color: black;
+    padding: 2px;
+    border-radius: 3px;
+  }
+  

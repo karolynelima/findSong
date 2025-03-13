@@ -11,7 +11,7 @@ CORS(app)  # Permite requisições do frontend
 
 genius = lyricsgenius.Genius("ZU-1J5vzPA1kzDOXWTMWMohIloyRiUafyhnSwXfGeMptN5JwMj1xpjQ4iC0Q3IMW", timeout=30)
 
-@app.route('/', methods=['POST'])
+@app.route('/buscar', methods=['GET', 'POST'])
 def buscar_musicas_por_frase():
     data = request.json
     cantor = data.get('cantor')
@@ -23,29 +23,31 @@ def buscar_musicas_por_frase():
         
         # Lista para armazenar as músicas e as estrofes que contêm a frase
         resultados = []
+        estrofes_vistas = set()  # Conjunto para evitar repetições
         
         # Prepara a expressão regular para buscar a frase completa
         padrao = re.compile(r'\b' + re.escape(frase.lower()) + r'\b', re.IGNORECASE)
         
-        # Itera sobre as músicas do artista
+         # Itera sobre as músicas do artista
         for musica in artista.songs:
             letra = musica.lyrics.lower()
+            linhas = letra.split("\n")  # Divide a letra em linhas
             
-            # Verifica se a frase está na letra da música
-            if padrao.search(letra):
-                # Encontra a posição da frase na letra
-                match = padrao.search(letra)
-                inicio = match.start()
-                
-                # Extrai a estrofe que contém a frase
-                # Vamos pegar 50 caracteres antes e depois da frase para contexto
-                estrofe = letra[max(0, inicio - 70):inicio + len(frase) + 70]
-                
-                # Adiciona o título da música e a estrofe aos resultados
-                resultados.append({
-                    "musica": musica.title,
-                    "estrofe": estrofe.strip()
-                })
+            # Itera sobre cada linha para encontrar a frase
+            for i, linha in enumerate(linhas):
+                if padrao.search(linha):
+                    # Pegamos a estrofe completa (3 linhas antes e 3 depois para contexto)
+                    inicio = max(0, i - 3)
+                    fim = min(len(linhas), i + 4)  # Inclui a linha com a frase
+                    estrofe_completa = "\n".join(linhas[inicio:fim]).strip()
+
+                    # Se a estrofe já foi adicionada, não adiciona novamente
+                    if estrofe_completa not in estrofes_vistas:
+                        estrofes_vistas.add(estrofe_completa)  # Adiciona ao conjunto
+                        resultados.append({
+                            "musica": musica.title,
+                            "estrofe": estrofe_completa
+                        })
         
         return jsonify(resultados)
     except Exception as e:
